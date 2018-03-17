@@ -7,7 +7,11 @@ python:
 
 install:
   - pip install pipenv
+  - pip install codecov
   - pipenv install --dev --system
 
 script:
-  - nosetests tests
+  - nosetests tests --with-coverage
+
+after_success:
+  - codecov
