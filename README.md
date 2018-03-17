@@ -57,8 +57,8 @@ r = weakref.ref(point)
 ```
 
 #### Read-only class variables
-With \_\_slots__ is possible to define read-only class variables. When using dataclasses you can do not provide type 
-for attribute or use typing.ClassVar to declare one (second method is not supported). 
+With \_\_slots__ it's possible to define read-only class variables. When using dataclasses you cannot provide type 
+for attribute or use typing.ClassVar to declare one (second method is not supported with slots). 
 ```python
 @with_slots
 @dataclass
@@ -66,7 +66,7 @@ class A:
     x = 5
 ```
 
-## More about __slots__
+## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
 
 [dataclasses_issue]: https://github.com/ericvsmith/dataclasses/issues/28
