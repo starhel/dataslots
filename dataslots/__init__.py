@@ -23,6 +23,7 @@ def with_slots(cls):
 
     # Erase __dict__ and __weakref__
     cls_dict.pop('__dict__', None)
+    cls_dict.pop('__weakref__', None)
 
     # Prepare new class with slots
     new_cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)

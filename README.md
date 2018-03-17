@@ -16,4 +16,7 @@ class Point2D:
     y: int
 ```
 
+## More about __slots__
+* https://docs.python.org/3/reference/datamodel.html#slots
+
 [dataclasses_issue]: https://github.com/ericvsmith/dataclasses/issues/28
