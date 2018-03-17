@@ -11,7 +11,7 @@ install:
   - pipenv install --dev --system
 
 script:
-  - nosetests tests --with-coverage
+  - nosetests tests --with-coverage --cover-package dataslots -cover-inclusive -v
 
 after_success:
   - codecov
