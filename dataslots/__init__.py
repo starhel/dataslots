@@ -1,4 +1,5 @@
 from dataclasses import fields
+from typing import ClassVar
 
 __all__ = ['with_slots']
 
@@ -12,10 +13,9 @@ def with_slots(_cls=None, *, add_dict=False, add_weakref=False):
 
     def wrap(cls):
         cls_dict = dict(cls.__dict__)
-
         # Create only missing slots
         old_slots = set(getattr(cls, '__slots__', {}))
-        field_names = set(tuple(f.name for f in fields(cls))) - old_slots
+        field_names = set(tuple(f.name for f in fields(cls) if f.type !=  ClassVar)) - old_slots
         if add_dict:
             field_names.add('__dict__')
         if add_weakref:

@@ -1,7 +1,7 @@
 from dataslots import with_slots
 import unittest
 from dataclasses import dataclass, field, InitVar
-import inspect
+from typing import ClassVar
 import weakref
 
 
@@ -127,4 +127,14 @@ class DataSlotsTests(TestBase):
         r = weakref.ref(instance)
         self.assertIs(instance, r())
 
+    def test_read_only_variable(self):
+        @with_slots
+        @dataclass
+        class A:
+            x: int
+            y = 5
 
+        a = A(10)
+        self.assertEqual(a.y, 5)
+        with self.assertRaises(AttributeError):
+            a.y = 20
