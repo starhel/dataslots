@@ -1,0 +1,13 @@
+sudo: false
+
+language: python
+
+python:
+  - 3.7-dev
+
+install:
+  - pip install pipenv
+  - pipenv install --dev --system
+
+script:
+  - nosetests tests
