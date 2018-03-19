@@ -4,7 +4,7 @@
 
 ## Decorator for adding __slots__
 In python3.7 there is dataclasses module ([PEP 557](https://www.python.org/dev/peps/pep-0557/)). Unfortunately there's 
-no support for \_\_slots__ ([dataclasses #28][dataclasses_issue]). **dataslots** package add with_slots decorator to 
+no support for \_\_slots__ ([dataclasses #28][dataclasses_issue]). **dataslots** package adds with_slots decorator to 
 create new class with proper \_\_slots__. 
 
 ## Usage
@@ -58,12 +58,13 @@ r = weakref.ref(point)
 
 #### Read-only class variables
 With \_\_slots__ it's possible to define read-only class variables. When using dataclasses you cannot provide type 
-for attribute or use typing.ClassVar to declare one (second method is not supported with slots). 
+for attribute or use typing.ClassVar to declare one. 
 ```python
 @with_slots
 @dataclass
 class A:
     x = 5
+    y: ClassVar[Set] = set()
 ```
 
 ## More about \_\_slots__

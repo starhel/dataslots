@@ -2,6 +2,7 @@ from dataslots import with_slots
 import unittest
 from dataclasses import dataclass, field, InitVar
 from typing import ClassVar
+import inspect
 import weakref
 
 
@@ -18,7 +19,6 @@ class TestBase(unittest.TestCase):
 
     def assertMember(self, name, obj):
         self.assertIn(name, dir(obj), 'Property {} not found'.format(name))
-
 
     def assertAssignVariable(self, instance, name='random_variable'):
         try:
@@ -95,7 +95,6 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(Derived.__slots__, ('x', 'y'))
         self.assertAssignVariable(Derived(5, 10))
 
-
     def test_slots_and_dict(self):
         @with_slots(add_dict=True)
         @dataclass
@@ -138,3 +137,40 @@ class DataSlotsTests(TestBase):
         self.assertEqual(a.y, 5)
         with self.assertRaises(AttributeError):
             a.y = 20
+
+    # @unittest.skip('Issue 33094')
+    def test_read_only_variable_class_var(self):
+        @with_slots
+        @dataclass
+        class A:
+            x: int
+            y: ClassVar[int] = 5
+            z: ClassVar[set] = set()
+
+        a = A(10)
+        self.assertEqual(a.y, 5)
+        with self.assertRaises(AttributeError):
+            a.y = 20
+
+        b = A(5)
+        a.z.add(10)
+        self.assertSetEqual(a.z, b.z)
+
+    def test_check_docs(self):
+        @with_slots
+        @dataclass
+        class A:
+            """Some class with one attribute"""
+            x: int
+
+        self.assertEqual(A.__doc__, """Some class with one attribute""")
+
+    def test_qualname(self):
+        @with_slots
+        @dataclass
+        class A:
+            x: int
+
+        qualname = f'{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}.<locals>.A'
+
+        self.assertEqual(A.__qualname__, qualname)

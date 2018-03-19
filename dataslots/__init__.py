@@ -1,5 +1,4 @@
 from dataclasses import fields
-from typing import ClassVar
 
 __all__ = ['with_slots']
 
@@ -14,13 +13,13 @@ def with_slots(_cls=None, *, add_dict=False, add_weakref=False):
     def wrap(cls):
         cls_dict = dict(cls.__dict__)
         # Create only missing slots
-        old_slots = set(getattr(cls, '__slots__', {}))
-        field_names = set(tuple(f.name for f in fields(cls) if f.type !=  ClassVar)) - old_slots
+        inherited_slots = set(getattr(cls, '__slots__', {}))
+        field_names = set(tuple(f.name for f in fields(cls)))
         if add_dict:
             field_names.add('__dict__')
         if add_weakref:
             field_names.add('__weakref__')
-        cls_dict['__slots__'] = tuple(field_names)
+        cls_dict['__slots__'] = tuple(field_names - inherited_slots)
 
         # Erase filed names from class __dict__
         for f in field_names:
@@ -31,10 +30,9 @@ def with_slots(_cls=None, *, add_dict=False, add_weakref=False):
         cls_dict.pop('__weakref__', None)
 
         # Prepare new class with slots
-        new_cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
-        qualname = getattr(cls, '__qualname__', None)
-        if qualname is not None:
-            new_cls.__qualname__ = qualname
+        new_cls = type(cls.__name__, cls.__bases__, cls_dict)
+        new_cls.__qualname__ = getattr(cls, '__qualname__')
+
         return new_cls
 
     return wrap if _cls is None else wrap(_cls)
