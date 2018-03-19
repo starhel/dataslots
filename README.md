@@ -69,5 +69,6 @@ class A:
 
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
+* https://github.com/ericvsmith/dataclasses/issues/28
 
 [dataclasses_issue]: https://github.com/ericvsmith/dataclasses/issues/28

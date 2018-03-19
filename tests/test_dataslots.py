@@ -138,7 +138,6 @@ class DataSlotsTests(TestBase):
         with self.assertRaises(AttributeError):
             a.y = 20
 
-    # @unittest.skip('Issue 33094')
     def test_read_only_variable_class_var(self):
         @with_slots
         @dataclass
@@ -174,3 +173,23 @@ class DataSlotsTests(TestBase):
         qualname = f'{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}.<locals>.A'
 
         self.assertEqual(A.__qualname__, qualname)
+
+    def test_slots_inheritance(self):
+        @with_slots
+        @dataclass
+        class A:
+            x: int
+
+        @with_slots
+        @dataclass
+        class B(A):
+            y: int = 15
+
+        @with_slots
+        @dataclass
+        class C(B):
+            x: int = 20
+
+        self.assertCountEqual(A.__slots__, ('x',))
+        self.assertCountEqual(B.__slots__, ('y',))
+        self.assertTupleEqual(C.__slots__, ())

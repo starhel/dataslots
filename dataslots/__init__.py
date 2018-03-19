@@ -7,13 +7,13 @@ def with_slots(_cls=None, *, add_dict=False, add_weakref=False):
     """
     Decorator to add __slots__ to class created by dataclass. Returns new class object as it's not possible
     to add __slots__ after class creation.
-    Based on: https://github.com/ericvsmith/dataclasses/issues/28
     """
 
     def wrap(cls):
         cls_dict = dict(cls.__dict__)
         # Create only missing slots
-        inherited_slots = set(getattr(cls, '__slots__', {}))
+        inherited_slots = set().union(*(getattr(c, '__slots__', set()) for c in cls.mro()))
+
         field_names = set(tuple(f.name for f in fields(cls)))
         if add_dict:
             field_names.add('__dict__')
