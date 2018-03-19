@@ -41,7 +41,7 @@ class DataSlotsTests(TestBase):
         self.assertNotMember('__dict__', instance)
         self.assertNotMember('__weakref__', instance)
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaisesRegex(AttributeError, "'A' object has no attribute 'new_prop'"):
             instance.new_prop = 15
 
     def test_skip_init_var(self):
@@ -113,7 +113,7 @@ class DataSlotsTests(TestBase):
             x: int
 
         instance = A(1)
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(TypeError, "cannot create weak reference to 'A' object"):
             weakref.ref(instance)
 
     def test_weakref_flag(self):
@@ -135,7 +135,7 @@ class DataSlotsTests(TestBase):
 
         a = A(10)
         self.assertEqual(a.y, 5)
-        with self.assertRaises(AttributeError):
+        with self.assertRaisesRegex(AttributeError, "'A' object attribute 'y' is read-only"):
             a.y = 20
 
     def test_read_only_variable_class_var(self):
@@ -148,12 +148,13 @@ class DataSlotsTests(TestBase):
 
         a = A(10)
         self.assertEqual(a.y, 5)
-        with self.assertRaises(AttributeError):
+        with self.assertRaisesRegex(AttributeError, "'A' object attribute 'y' is read-only"):
             a.y = 20
 
         b = A(5)
         a.z.add(10)
         self.assertSetEqual(a.z, b.z)
+        self.assertIs(a.z, b.z)
 
     def test_check_docs(self):
         @with_slots
@@ -193,3 +194,24 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(A.__slots__, ('x',))
         self.assertCountEqual(B.__slots__, ('y',))
         self.assertTupleEqual(C.__slots__, ())
+
+    def test_multi_add_dict_weakref(self):
+        @with_slots(add_dict=True)
+        @dataclass
+        class A:
+            x: int
+
+        @with_slots(add_dict=True, add_weakref=True)
+        @dataclass
+        class B(A):
+            y: int = 15
+
+        @with_slots(add_dict=True, add_weakref=True)
+        @dataclass
+        class C(B):
+            x: int = 20
+            z: int = 50
+
+        self.assertCountEqual(A.__slots__, ('x', '__dict__'))
+        self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
+        self.assertCountEqual(C.__slots__, ('z',))
