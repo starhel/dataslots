@@ -2,6 +2,10 @@
 [![Build Status](https://travis-ci.org/starhel/dataslots.svg?branch=master)](https://travis-ci.org/starhel/dataslots)
 [![codecov](https://codecov.io/gh/starhel/dataslots/branch/master/graph/badge.svg)](https://codecov.io/gh/starhel/dataslots)
 
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dataslots.svg)](https://pypi.org/project/dataslots/)
+[![PyPI - Status](https://img.shields.io/pypi/status/dataslots.svg)](https://pypi.org/project/dataslots/)
+![license](https://img.shields.io/github/license/starhel/dataslots.svg)
+
 ## Decorator for adding __slots__
 Python3.7 provides dataclasses module for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
 Unfortunately there's no support for \_\_slots__. If you want to create more memory efficient instances, you need to 
