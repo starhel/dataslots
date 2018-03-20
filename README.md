@@ -3,9 +3,9 @@
 [![codecov](https://codecov.io/gh/starhel/dataslots/branch/master/graph/badge.svg)](https://codecov.io/gh/starhel/dataslots)
 
 ## Decorator for adding __slots__
-In python3.7 there is dataclasses module ([PEP 557](https://www.python.org/dev/peps/pep-0557/)). Unfortunately there's 
-no support for \_\_slots__ ([dataclasses #28][dataclasses_issue]). **dataslots** package adds with_slots decorator to 
-create new class with proper \_\_slots__. 
+Python3.7 provides dataclasses module for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
+Unfortunately there's no support for \_\_slots__. If you want to create more memory efficient instances, you need to 
+do it by yourself or use dataslots.with_slots decorator. 
 
 ## Usage
 #### Simple example
@@ -64,7 +64,7 @@ for attribute or use typing.ClassVar to declare one.
 @dataclass
 class A:
     x = 5
-    y: ClassVar[Set] = set()
+    y: ClassVar[set] = set()
 ```
 
 ## More about \_\_slots__
