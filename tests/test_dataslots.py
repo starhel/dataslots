@@ -215,3 +215,23 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(A.__slots__, ('x', '__dict__'))
         self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
         self.assertCountEqual(C.__slots__, ('z',))
+
+    def test_slots_inheritance_no_defaults(self):
+        @with_slots
+        @dataclass
+        class A:
+            x: int
+
+        @with_slots
+        @dataclass
+        class B(A):
+            y: int
+
+        @with_slots
+        @dataclass
+        class C(B):
+            x: int
+
+        self.assertCountEqual(A.__slots__, ('x',))
+        self.assertCountEqual(B.__slots__, ('y',))
+        self.assertTupleEqual(C.__slots__, ())
