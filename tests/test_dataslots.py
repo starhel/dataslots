@@ -4,16 +4,10 @@ from dataclasses import dataclass, field, InitVar
 from typing import ClassVar
 import inspect
 import weakref
-
-
-class _PROPERTY_MISSING_CLASS:
-    def __repr__(self):
-        return 'MISSING PROPERTY'
+from sys import version_info
 
 
 class TestBase(unittest.TestCase):
-    _PROPERTY_MISSING = _PROPERTY_MISSING_CLASS()
-
     def assertNotMember(self, name, obj):
         self.assertNotIn(name, dir(obj), 'Property {} found'.format(name))
 
@@ -216,6 +210,7 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
         self.assertCountEqual(C.__slots__, ('z',))
 
+    @unittest.skipIf(version_info < (3, 7, 0, 'beta', 3), 'Issue 33100 (fixed in python 3.7.0b3)')
     def test_slots_inheritance_no_defaults(self):
         @with_slots
         @dataclass
