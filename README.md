@@ -71,6 +71,9 @@ class A:
     y: ClassVar[set] = set()
 ```
 
+## Travis CI build
+Due to travis-ci/travis-ci#9069 some tests must be skipped because python version is too old. 
+
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
 * https://github.com/ericvsmith/dataclasses/issues/28
