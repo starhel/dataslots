@@ -4,7 +4,7 @@ from dataclasses import dataclass, field, InitVar
 from typing import ClassVar
 import inspect
 import weakref
-from sys import version_info
+from nose.plugins.attrib import attr
 
 
 class TestBase(unittest.TestCase):
@@ -210,7 +210,7 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
         self.assertCountEqual(C.__slots__, ('z',))
 
-    @unittest.skipIf(version_info < (3, 7, 0, 'beta', 3), 'Issue 33100 (fixed in python 3.7.0b3)')
+    @attr('local-only')
     def test_slots_inheritance_no_defaults(self):
         @with_slots
         @dataclass
