@@ -4,7 +4,6 @@ from dataclasses import dataclass, field, InitVar
 from typing import ClassVar
 import inspect
 import weakref
-from nose.plugins.attrib import attr
 
 
 class TestBase(unittest.TestCase):
@@ -210,7 +209,6 @@ class DataSlotsTests(TestBase):
         self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
         self.assertCountEqual(C.__slots__, ('z',))
 
-    @attr('local-only')
     def test_slots_inheritance_no_defaults(self):
         @with_slots
         @dataclass
