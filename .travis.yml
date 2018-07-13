@@ -4,6 +4,7 @@ language: python
 
 jobs:
   include:
+    - python: 3.6
     - python: 3.7
       dist: xenial
       sudo: true
@@ -17,6 +18,8 @@ install:
   - pip install pipenv
   - pip install codecov
   - pipenv install --dev --system
+  # Install dataclasses backport for python 3.6
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then pipenv install dataclasses; fi
 
 script:
   - nosetests tests --with-coverage --cover-package dataslots -cover-inclusive -v
