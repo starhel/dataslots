@@ -2,8 +2,16 @@ sudo: false
 
 language: python
 
-python:
-  - 3.7-dev
+jobs:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+    - python: 3.8-dev
+      dist: xenial
+      sudo: true
+  allow_failures:
+    - python: 3.8-dev
 
 install:
   - pip install pipenv
@@ -11,7 +19,7 @@ install:
   - pipenv install --dev --system
 
 script:
-  - nosetests tests --with-coverage --cover-package dataslots -cover-inclusive -v -a '!local-only'
+  - nosetests tests --with-coverage --cover-package dataslots -cover-inclusive -v
 
 after_success:
   - codecov
