@@ -9,7 +9,7 @@ def read(fname):
 setup(
     name='dataslots',
     packages=['dataslots'],
-    version='1.0.0',
+    version='1.0.1',
     description='Decorator to add __slots__ in dataclasses',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
@@ -23,6 +23,9 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Intended Audience :: Developers"
+    ],
+    install_requires=[
+        'dataclasses>=0.6;python_version=="3.6"',
     ],
     python_requires='>=3.6'
 )
