@@ -1,230 +1,233 @@
-from dataslots import with_slots
-import unittest
-from dataclasses import dataclass, field, InitVar
-from typing import ClassVar
 import inspect
 import weakref
+from dataclasses import dataclass, field, InitVar
+from typing import ClassVar
+
+import pytest
+
+from dataslots import with_slots
 
 
-class TestBase(unittest.TestCase):
-    def assertNotMember(self, name, obj):
-        self.assertNotIn(name, dir(obj), 'Property {} found'.format(name))
+def test_basic_slots(assertions):
+    @with_slots
+    @dataclass
+    class A:
+        x: int
+        y: float = 0.0
+        l: list = field(default_factory=list)
 
-    def assertMember(self, name, obj):
-        self.assertIn(name, dir(obj), 'Property {} not found'.format(name))
+    instance = A(10)
+    assertions.assert_slots(instance, ('x', 'y', 'l'))
+    assertions.assert_not_member('__dict__', instance)
+    assertions.assert_not_member('__weakref__', instance)
 
-    def assertAssignVariable(self, instance, name='random_variable'):
-        try:
-            setattr(instance, name, 10)
-        except AttributeError:
-            self.fail('Cannot add variable to class "{}" with __dict__'.format(instance.__class__))
+    with pytest.raises(AttributeError):
+        instance.new_prop = 15
 
 
-class DataSlotsTests(TestBase):
-    def test_basic_slots(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
-            y: float = 0.0
-            l: list = field(default_factory=list)
+def test_skip_init_var(assertions):
+    @with_slots
+    @dataclass
+    class A:
+        x: int
+        y: InitVar[int]
 
-        instance = A(10)
-        self.assertCountEqual(instance.__slots__, ('x', 'y', 'l'))
-        self.assertNotMember('__dict__', instance)
-        self.assertNotMember('__weakref__', instance)
+    assertions.assert_slots(A, ('x',))
 
-        with self.assertRaisesRegex(AttributeError, "'A' object has no attribute 'new_prop'"):
-            instance.new_prop = 15
 
-    def test_skip_init_var(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
-            y: InitVar[int]
+def test_base_methods_present(assertions):
+    @with_slots
+    @dataclass(frozen=True)
+    class A:
+        x: int = 15
 
-        self.assertCountEqual(A.__slots__, ('x',))
+    instance = A()
+    assertions.assert_member('__init__', instance)
+    assertions.assert_member('__eq__', instance)
+    assertions.assert_member('__ge__', instance)
+    assertions.assert_member('__repr__', instance)
+    assertions.assert_member('__hash__', instance)
 
-    def test_base_methods_present(self):
-        @with_slots
-        @dataclass(frozen=True)
-        class A:
-            x: int = 15
 
-        instance = A()
-        self.assertMember('__init__', instance)
-        self.assertMember('__eq__', instance)
-        self.assertMember('__ge__', instance)
-        self.assertMember('__repr__', instance)
-        self.assertMember('__hash__', instance)
+def test_inheritance_no_dict(assertions):
+    @with_slots
+    @dataclass
+    class Base:
+        x: int
 
-    def test_inheritance_no_dict(self):
-        @with_slots
-        @dataclass
-        class Base:
-            x: int
+    @with_slots
+    @dataclass
+    class Derived(Base):
+        y: int
 
-        @with_slots
-        @dataclass
-        class Derived(Base):
-            y: int
+    assertions.assert_not_member('__dict__', Base(5))
+    assertions.assert_not_member('__dict__', Derived(5, 10))
 
-        self.assertNotMember('__dict__', Base(5))
-        self.assertNotMember('__dict__', Derived(5, 10))
 
-    def test_inheritance_base_class_without_slots(self):
-        @dataclass
-        class Base:
-            x: int
+def test_inheritance_base_class_without_slots(assertions):
+    @dataclass
+    class Base:
+        x: int
 
-        @with_slots
-        @dataclass
-        class Derived(Base):
-            y: int
+    @with_slots
+    @dataclass
+    class Derived(Base):
+        y: int
 
-        self.assertMember('__dict__', Base(5))
-        self.assertMember('__dict__', Derived(5, 10))
-        self.assertCountEqual(Derived.__slots__, ('x', 'y'))
-        self.assertAssignVariable(Derived(5, 10))
+    derived = Derived(5, 10)
 
-    def test_slots_and_dict(self):
-        @with_slots(add_dict=True)
-        @dataclass
-        class A:
-            x: int
+    assertions.assert_member('__dict__', Base(5))
+    assertions.assert_member('__dict__', derived)
+    assertions.assert_slots(Derived, ('x', 'y'))
+    assertions.assert_assign_variable(derived)
 
-        instance = A(10)
-        self.assertMember('__slots__', instance)
-        self.assertMember('__dict__', instance)
-        self.assertAssignVariable(instance)
 
-    def test_no_weakref(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
+def test_slots_and_dict(assertions):
+    @with_slots(add_dict=True)
+    @dataclass
+    class A:
+        x: int
 
-        instance = A(1)
-        with self.assertRaisesRegex(TypeError, "cannot create weak reference to 'A' object"):
-            weakref.ref(instance)
+    instance = A(10)
+    assertions.assert_member('__slots__', instance)
+    assertions.assert_member('__dict__', instance)
+    assertions.assert_assign_variable(instance)
 
-    def test_weakref_flag(self):
-        @with_slots(add_weakref=True)
-        @dataclass
-        class A:
-            x: int
 
-        instance = A(1)
-        r = weakref.ref(instance)
-        self.assertIs(instance, r())
+def test_no_weakref():
+    @with_slots
+    @dataclass
+    class A:
+        x: int
 
-    def test_read_only_variable(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
-            y = 5
+    instance = A(1)
+    with pytest.raises(TypeError):
+        weakref.ref(instance)
 
-        a = A(10)
-        self.assertEqual(a.y, 5)
-        with self.assertRaisesRegex(AttributeError, "'A' object attribute 'y' is read-only"):
-            a.y = 20
 
-    def test_read_only_variable_class_var(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
-            y: ClassVar[int] = 5
-            z: ClassVar[set] = set()
+def test_weakref_flag():
+    @with_slots(add_weakref=True)
+    @dataclass
+    class A:
+        x: int
 
-        a = A(10)
-        self.assertEqual(a.y, 5)
-        with self.assertRaisesRegex(AttributeError, "'A' object attribute 'y' is read-only"):
-            a.y = 20
+    instance = A(1)
+    r = weakref.ref(instance)
+    assert instance is r()
 
-        b = A(5)
-        a.z.add(10)
-        self.assertSetEqual(a.z, b.z)
-        self.assertIs(a.z, b.z)
 
-    def test_check_docs(self):
-        @with_slots
-        @dataclass
-        class A:
-            """Some class with one attribute"""
-            x: int
+def test_read_only_variable():
+    @with_slots
+    @dataclass
+    class A:
+        x: int
+        y = 5
 
-        self.assertEqual(A.__doc__, """Some class with one attribute""")
+    a = A(10)
+    assert a.y == 5
+    with pytest.raises(AttributeError):
+        a.y = 20
 
-    def test_qualname(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
 
-        qualname = f'{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}.<locals>.A'
+def test_read_only_variable_class_var():
+    @with_slots
+    @dataclass
+    class A:
+        x: int
+        y: ClassVar[int] = 5
+        z: ClassVar[set] = set()
 
-        self.assertEqual(A.__qualname__, qualname)
+    a = A(10)
+    assert a.y == 5
+    with pytest.raises(AttributeError):
+        a.y = 20
 
-    def test_slots_inheritance(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
+    b = A(5)
+    a.z.add(10)
+    assert a.z == b.z
+    assert a.z is b.z
 
-        @with_slots
-        @dataclass
-        class B(A):
-            y: int = 15
 
-        @with_slots
-        @dataclass
-        class C(B):
-            x: int = 20
+def test_check_docs():
+    @with_slots
+    @dataclass
+    class A:
+        """Some class with one attribute"""
+        x: int
 
-        self.assertCountEqual(A.__slots__, ('x',))
-        self.assertCountEqual(B.__slots__, ('y',))
-        self.assertTupleEqual(C.__slots__, ())
+    assert A.__doc__ == "Some class with one attribute"
 
-    def test_multi_add_dict_weakref(self):
-        @with_slots(add_dict=True)
-        @dataclass
-        class A:
-            x: int
 
-        @with_slots(add_dict=True, add_weakref=True)
-        @dataclass
-        class B(A):
-            y: int = 15
+def test_qualname():
+    @with_slots
+    @dataclass
+    class A:
+        x: int
 
-        @with_slots(add_dict=True, add_weakref=True)
-        @dataclass
-        class C(B):
-            x: int = 20
-            z: int = 50
+    qualname = f'{inspect.currentframe().f_code.co_name}.<locals>.A'
 
-        self.assertCountEqual(A.__slots__, ('x', '__dict__'))
-        self.assertCountEqual(B.__slots__, ('y', '__weakref__'))
-        self.assertCountEqual(C.__slots__, ('z',))
+    assert A.__qualname__ == qualname
 
-    def test_slots_inheritance_no_defaults(self):
-        @with_slots
-        @dataclass
-        class A:
-            x: int
 
-        @with_slots
-        @dataclass
-        class B(A):
-            y: int
+def test_slots_inheritance(assertions):
+    @with_slots
+    @dataclass
+    class A:
+        x: int
 
-        @with_slots
-        @dataclass
-        class C(B):
-            x: int
+    @with_slots
+    @dataclass
+    class B(A):
+        y: int = 15
 
-        self.assertCountEqual(A.__slots__, ('x',))
-        self.assertCountEqual(B.__slots__, ('y',))
-        self.assertTupleEqual(C.__slots__, ())
+    @with_slots
+    @dataclass
+    class C(B):
+        x: int = 20
+
+    assertions.assert_slots(A, ('x',))
+    assertions.assert_slots(B, ('y',))
+    assertions.assert_slots(C, ())
+
+
+def test_multi_add_dict_weakref(assertions):
+    @with_slots(add_dict=True)
+    @dataclass
+    class A:
+        x: int
+
+    @with_slots(add_dict=True, add_weakref=True)
+    @dataclass
+    class B(A):
+        y: int = 15
+
+    @with_slots(add_dict=True, add_weakref=True)
+    @dataclass
+    class C(B):
+        x: int = 20
+        z: int = 50
+
+    assertions.assert_slots(A, ('x', '__dict__'))
+    assertions.assert_slots(B, ('y', '__weakref__'))
+    assertions.assert_slots(C, ('z',))
+
+
+def test_slots_inheritance_no_defaults(assertions):
+    @with_slots
+    @dataclass
+    class A:
+        x: int
+
+    @with_slots
+    @dataclass
+    class B(A):
+        y: int
+
+    @with_slots
+    @dataclass
+    class C(B):
+        x: int
+
+    assertions.assert_slots(A, ('x',))
+    assertions.assert_slots(B, ('y',))
+    assertions.assert_slots(C, ())
