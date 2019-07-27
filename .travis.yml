@@ -5,24 +5,19 @@ language: python
 jobs:
   include:
     - python: 3.6
+      dist: xenial
     - python: 3.7
-      dist: xenial
-      sudo: true
+      dist: bionic
     - python: 3.8-dev
-      dist: xenial
-      sudo: true
+      dist: bionic
   allow_failures:
     - python: 3.8-dev
 
 install:
-  - pip install pipenv
-  - pip install codecov
-  - pipenv install --dev --system
-  # Install dataclasses backport for python 3.6
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then pipenv install dataclasses; fi
+  - pip install poetry tox-travis
 
 script:
-  - nosetests tests --with-coverage --cover-package dataslots -cover-inclusive -v
+  - tox
 
 after_success:
   - codecov

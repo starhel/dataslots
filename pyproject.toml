@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "dataslots"
+version = "1.0.1"
+description = "Decorator to add __slots__ in dataclasses"
+authors = ["Adrian Stachlewski <starhel.github@gmail.com>"]
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers"
+]
+licence = "MIT"
+readme = "README.md"
+repository = "https://github.com/starhel/dataslots"
+keywords=['dataslots', 'slots', 'dataclasses']
+
+[tool.poetry.dependencies]
+python = "^3.6"
+dataclasses = { version = ">=0.6", python = "~3.6" }
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.0"
+pytest-cov = "^2.7"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
