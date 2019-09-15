@@ -10,6 +10,7 @@ jobs:
       dist: bionic
     - python: 3.8-dev
       dist: bionic
+    - python: pypy3
   allow_failures:
     - python: 3.8-dev
 

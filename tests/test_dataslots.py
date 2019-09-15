@@ -1,5 +1,6 @@
 import inspect
 import pickle
+import platform
 import sys
 import weakref
 from dataclasses import dataclass, field, InitVar
@@ -96,7 +97,9 @@ def test_slots_and_dict(assertions):
     assertions.assert_assign_variable(instance)
 
 
-def test_no_weakref():
+@pytest.mark.skipif(platform.python_implementation() == 'PyPy',
+                    reason="PyPy can create weakref without __weakref__ attribute.")
+def test_cannot_create_weakref():
     @dataslots
     @dataclass
     class A:
@@ -105,6 +108,16 @@ def test_no_weakref():
     instance = A(1)
     with pytest.raises(TypeError):
         weakref.ref(instance)
+
+
+def test_no_weakref_attr(assertions):
+    @dataslots
+    @dataclass
+    class A:
+        x: int
+
+    instance = A(1)
+    assertions.assert_not_member('__weakref__', instance)
 
 
 def test_weakref_flag():
