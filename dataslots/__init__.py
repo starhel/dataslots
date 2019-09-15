@@ -15,6 +15,11 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
     to add __slots__ after class creation.
     """
 
+    def _slots_setstate(self, state):
+        for param_dict in filter(None, state):
+            for slot, value in param_dict.items():
+                object.__setattr__(self, slot, value)
+
     def wrap(cls):
         cls_dict = dict(cls.__dict__)
         # Create only missing slots
@@ -34,6 +39,12 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
         # Erase __dict__ and __weakref__
         cls_dict.pop('__dict__', None)
         cls_dict.pop('__weakref__', None)
+
+        # Pickle fix for frozen dataclass as mentioned in https://bugs.python.org/issue36424
+        # Use only if __getstate__ and __setstate__ are not declared and frozen=True
+        if all(param not in cls_dict for param in ['__getstate__', '__setstate__']) and \
+                cls.__dataclass_params__.frozen:
+            cls_dict['__setstate__'] = _slots_setstate
 
         # Prepare new class with slots
         new_cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)

@@ -71,6 +71,10 @@ class A:
     y: ClassVar[set] = set()
 ```
 
+#### Pickling frozen dataclass
+Because of an [issue 36424](https://bugs.python.org/issue36424) you need custom \_\_setstate__ method. In dataslots there is 
+implemented default version and it is used if decorated class has no \_\_getstate__ and \_\_setstate__ function declared.
+
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
 * https://github.com/ericvsmith/dataclasses/issues/28
