@@ -36,7 +36,7 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
         cls_dict.pop('__weakref__', None)
 
         # Prepare new class with slots
-        new_cls = type(cls.__name__, cls.__bases__, cls_dict)
+        new_cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
         new_cls.__qualname__ = getattr(cls, '__qualname__')
 
         return new_cls

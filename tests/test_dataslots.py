@@ -1,7 +1,8 @@
 import inspect
+import sys
 import weakref
 from dataclasses import dataclass, field, InitVar
-from typing import ClassVar
+from typing import ClassVar, TypeVar, Generic
 
 import pytest
 
@@ -239,3 +240,31 @@ def test_with_slots_deprecated():
         x: int
 
     pytest.deprecated_call(with_slots, A)
+
+
+def test_custom_metaclass():
+    class MetaA(type):
+        pass
+
+    @dataslots
+    @dataclass
+    class A(metaclass=MetaA):
+        x: int
+
+    assert type(A) is MetaA
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7, 0), reason="Generic[T] is not supported in python 3.6")
+def test_generic_typing(assertions):
+    T = TypeVar('T', int, float)
+
+    @dataslots
+    @dataclass
+    class A(Generic[T]):
+        x: T
+        y: T = 10
+
+    instance = A[int](x=5)
+    assertions.assert_slots(A, ('x', 'y'))
+    assert 10 == instance.y
+    assertions.assert_not_member('__dict__', instance)
