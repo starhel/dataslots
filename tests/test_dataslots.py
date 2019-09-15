@@ -5,11 +5,11 @@ from typing import ClassVar
 
 import pytest
 
-from dataslots import with_slots
+from dataslots import dataslots, with_slots
 
 
 def test_basic_slots(assertions):
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -26,7 +26,7 @@ def test_basic_slots(assertions):
 
 
 def test_skip_init_var(assertions):
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -36,7 +36,7 @@ def test_skip_init_var(assertions):
 
 
 def test_base_methods_present(assertions):
-    @with_slots
+    @dataslots
     @dataclass(frozen=True)
     class A:
         x: int = 15
@@ -50,12 +50,12 @@ def test_base_methods_present(assertions):
 
 
 def test_inheritance_no_dict(assertions):
-    @with_slots
+    @dataslots
     @dataclass
     class Base:
         x: int
 
-    @with_slots
+    @dataslots
     @dataclass
     class Derived(Base):
         y: int
@@ -69,7 +69,7 @@ def test_inheritance_base_class_without_slots(assertions):
     class Base:
         x: int
 
-    @with_slots
+    @dataslots
     @dataclass
     class Derived(Base):
         y: int
@@ -83,7 +83,7 @@ def test_inheritance_base_class_without_slots(assertions):
 
 
 def test_slots_and_dict(assertions):
-    @with_slots(add_dict=True)
+    @dataslots(add_dict=True)
     @dataclass
     class A:
         x: int
@@ -95,7 +95,7 @@ def test_slots_and_dict(assertions):
 
 
 def test_no_weakref():
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -106,7 +106,7 @@ def test_no_weakref():
 
 
 def test_weakref_flag():
-    @with_slots(add_weakref=True)
+    @dataslots(add_weakref=True)
     @dataclass
     class A:
         x: int
@@ -117,7 +117,7 @@ def test_weakref_flag():
 
 
 def test_read_only_variable():
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -130,7 +130,7 @@ def test_read_only_variable():
 
 
 def test_read_only_variable_class_var():
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -149,7 +149,7 @@ def test_read_only_variable_class_var():
 
 
 def test_check_docs():
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         """Some class with one attribute"""
@@ -159,7 +159,7 @@ def test_check_docs():
 
 
 def test_qualname():
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
@@ -170,17 +170,17 @@ def test_qualname():
 
 
 def test_slots_inheritance(assertions):
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
 
-    @with_slots
+    @dataslots
     @dataclass
     class B(A):
         y: int = 15
 
-    @with_slots
+    @dataslots
     @dataclass
     class C(B):
         x: int = 20
@@ -191,17 +191,17 @@ def test_slots_inheritance(assertions):
 
 
 def test_multi_add_dict_weakref(assertions):
-    @with_slots(add_dict=True)
+    @dataslots(add_dict=True)
     @dataclass
     class A:
         x: int
 
-    @with_slots(add_dict=True, add_weakref=True)
+    @dataslots(add_dict=True, add_weakref=True)
     @dataclass
     class B(A):
         y: int = 15
 
-    @with_slots(add_dict=True, add_weakref=True)
+    @dataslots(add_dict=True, add_weakref=True)
     @dataclass
     class C(B):
         x: int = 20
@@ -213,17 +213,17 @@ def test_multi_add_dict_weakref(assertions):
 
 
 def test_slots_inheritance_no_defaults(assertions):
-    @with_slots
+    @dataslots
     @dataclass
     class A:
         x: int
 
-    @with_slots
+    @dataslots
     @dataclass
     class B(A):
         y: int
 
-    @with_slots
+    @dataslots
     @dataclass
     class C(B):
         x: int
@@ -231,3 +231,11 @@ def test_slots_inheritance_no_defaults(assertions):
     assertions.assert_slots(A, ('x',))
     assertions.assert_slots(B, ('y',))
     assertions.assert_slots(C, ())
+
+
+def test_with_slots_deprecated():
+    @dataclass
+    class A:
+        x: int
+
+    pytest.deprecated_call(with_slots, A)
