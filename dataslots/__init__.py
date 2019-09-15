@@ -1,9 +1,15 @@
 from dataclasses import fields
+from warnings import warn
 
-__all__ = ['with_slots']
+__all__ = ['dataslots', 'with_slots']
 
 
-def with_slots(_cls=None, *, add_dict=False, add_weakref=False):
+def with_slots(*args, **kwargs):
+    warn("Use dataslots decorator instead of with_slots", category=PendingDeprecationWarning, stacklevel=2)
+    return dataslots(*args, **kwargs)
+
+
+def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
     """
     Decorator to add __slots__ to class created by dataclass. Returns new class object as it's not possible
     to add __slots__ after class creation.

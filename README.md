@@ -9,12 +9,12 @@
 ## Decorator for adding __slots__
 Python3.7 provides dataclasses module for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
 Unfortunately there's no support for \_\_slots__. If you want to create more memory efficient instances, you need to 
-do it by yourself or use dataslots.with_slots decorator. 
+do it by yourself or use dataslots.dataslots decorator.
 
 ## Usage
 #### Simple example
 ```python
-@with_slots
+@dataslots
 @dataclass
 class Point2D:
     x: int
@@ -29,7 +29,7 @@ class Base:
     a: int
 
 
-@with_slots
+@dataslots
 @dataclass
 class Derived(Base):
     c: int
@@ -38,7 +38,7 @@ class Derived(Base):
 
 #### Dynamic assignment of new variables
 ```python
-@with_slots(add_dict=True)
+@dataslots(add_dict=True)
 @dataclass
 class Point2D:
     x: int
@@ -50,7 +50,7 @@ point.length = math.sqrt(point.x ** 2 + point.y ** 2)
 
 #### Weakref
 ```python
-@with_slots(add_weakref=True)
+@dataslots(add_weakref=True)
 @dataclass
 class Point2D:
     x: int
@@ -64,7 +64,7 @@ r = weakref.ref(point)
 With \_\_slots__ it's possible to define read-only class variables. When using dataclasses you cannot provide type 
 for attribute or use typing.ClassVar to declare one. 
 ```python
-@with_slots
+@dataslots
 @dataclass
 class A:
     x = 5
