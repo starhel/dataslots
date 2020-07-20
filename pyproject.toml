@@ -8,7 +8,7 @@ classifiers=[
     "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers"
 ]
-licence = "MIT"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/starhel/dataslots"
 keywords=['dataslots', 'slots', 'dataclasses']
