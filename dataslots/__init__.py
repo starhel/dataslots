@@ -9,7 +9,7 @@ def with_slots(*args, **kwargs):
     return dataslots(*args, **kwargs)
 
 
-def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
+def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
     """
     Decorator to add __slots__ to class created by dataclass. Returns new class object as it's not possible
     to add __slots__ after class creation.
