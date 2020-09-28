@@ -1,24 +1,34 @@
-sudo: false
-
+os: linux
 language: python
+dist: bionic
+
+python:
+  - '3.6'
+  - '3.7'
+  - '3.8'
+  - '3.9-dev'
+  - 'nightly'
+  - 'pypy3'
 
 jobs:
-  include:
-    - python: 3.6
-      dist: xenial
-    - python: 3.7
-      dist: bionic
-    - python: 3.8-dev
-      dist: bionic
-    - python: pypy3
   allow_failures:
-    - python: 3.8-dev
+    - python: 3.9-dev
+    - python: nightly
 
 install:
-  - pip install poetry tox-travis
+  - pip install tox-travis codecov
 
 script:
   - tox
 
 after_success:
   - codecov
+
+deploy:
+  provider: pypi
+  username: "__token__"
+  password:
+    secure: dryEPd4Z3r6/CkDqqFFhRM72FIlghQd8Fg2hQYrVJyurBVxD2IJD9Gg6Z1K9n77L1dxv4rK4LmuSQ1vkjV5/gq3i8YgmU4qg3BQ13XrUqQXd6fiLU1Re4oQPmYp9ozHLdjltFjdQs6wdzIRzaCzNtQl9ojDvzKY8+SmAAGxzNpVgpCD5BcHPje1/nqfG19nNDKPyBpzKBNAtnAql9VtqcpvzawGDEmFr/UVdVwjYhGViaQy89WvhVMHvOexqPusFmU10xDK1KnUHoJTjLSHmFfSjGN59jXlG9H0MEdDvQuz2/28VUC/S7MeVuLZc1yvGCmWZoin/uO+ETYm1r4uvdrBJmdLGKkAs7YYyXuN5rFi24oQUhtICzeUR27Vm6a59LdKhGucrUFEhADDlT8Z3C/ohC+H9j5zMlOC8ma5EEeKJBZSnwxfe4YoJaacu0LRGs5f2MtJQUDuzGl2rbvTwxIiYqywIFmiSRoQZaNEekPQ7x34BvmBf3WN3+20IXb7c5TrBhCWhyJRmfsOUVaPHAN22bR8CGmdOxaqIOqEcD2HIV6H4mOSM4wK3j61KFp7WOgZGi6jS4CReBKSywe+qjc7tiOfhceVE8tCKFEIH7tj7oIs1bvXE+d8wcfZqnkcFTyLVOrMi4Qg8FG7jX5kAusVTwW3TeVlce/tw8YR9Tus=
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"
