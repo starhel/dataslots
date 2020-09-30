@@ -22,6 +22,8 @@ def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
 
     def wrap(cls):
         cls_dict = dict(cls.__dict__)
+        if '__slots__' in cls_dict:
+            raise TypeError('Do not define __slots__ if dataslots decorator is used.')
         # Create only missing slots
         inherited_slots = set().union(*(getattr(c, '__slots__', set()) for c in cls.mro()))
 

@@ -345,3 +345,15 @@ def test_frozen_pickle_with_dict(assertions, pickle_protocol):
     assert instance == pickled
     assert instance.z == pickled.z == 20
     assertions.assert_member('__setstate__', instance)
+
+
+def test_slots_already_defined():
+    @dataclass
+    class A:
+        __slots__ = ('x', 'y')
+        x: int
+        y: int
+
+    with pytest.raises(TypeError):
+        dataslots(A)
+
