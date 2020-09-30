@@ -2,6 +2,10 @@ os: linux
 language: python
 dist: bionic
 
+env:
+  global:
+    - secure: "aFTK6Ia2OQXmVORAFbKK6vxUna6iaGsLsbkaUPy7E70w9dWjFz1Q78XaTYCW4x46fzozhL1OjQgDP5Ee66eWjiqhXcr3gLEPKIf32B1WgKW4YEvW1sOy/UsntCo+dkFCQSl0o10gmGn5U2+oNsDiD8/zuUQLLlYzNQEkXoqZvlo1A1yJjEkEeYjF0e8XSskE42U55PswrEKNt6is2TMXASHeZ3qChxg4leAVMKeNxGRNxxVxZK5sMv8/HzkU3xcaS0ofiQfB9Pr0Cxs8CKLupg5yhFCNu7IyrKZ6JRsd6cHPAT83mFWkyKjPSiwD4IDIFO9IhXrgZMwFHddTzZoCmAek/A/Onb0LA7XnMxCiVBt9a5u6jFSRz7eCv9cTybnfEQYde8HCiWiS+A8OkUygNdOWjvbQ3X0L0uSifXGHPQpmcCPdEcJFZY9jyqMo3JNU706wpzYdNzVXNlzPCHE8xLLFikTNHsAkZsNLNyOfepm+F5wVq1FDBjnHEkrHtdxLwDUCH1/StouRi/un00YrecfEdrGCeKyv6YNORt6ozmkbktE0bc8rrGnHsqjzFolf8qfnbXpVVlNvYZieP1mTuL5PiedfaE5gXU78iKTf7NYjeO2SgtUBnAIHh9JbehQXnPce6K85jkLb+k9ZG8gL4kF/qWG+X8AezrSRma877RE="
+
 python:
   - '3.6'
   - '3.7'
@@ -24,11 +28,14 @@ script:
 after_success:
   - codecov
 
+before_deploy:
+  - pip install pep517 twine
+  - python -m pep517.build .
+
 deploy:
-  provider: pypi
-  username: "__token__"
-  password:
-    secure: dryEPd4Z3r6/CkDqqFFhRM72FIlghQd8Fg2hQYrVJyurBVxD2IJD9Gg6Z1K9n77L1dxv4rK4LmuSQ1vkjV5/gq3i8YgmU4qg3BQ13XrUqQXd6fiLU1Re4oQPmYp9ozHLdjltFjdQs6wdzIRzaCzNtQl9ojDvzKY8+SmAAGxzNpVgpCD5BcHPje1/nqfG19nNDKPyBpzKBNAtnAql9VtqcpvzawGDEmFr/UVdVwjYhGViaQy89WvhVMHvOexqPusFmU10xDK1KnUHoJTjLSHmFfSjGN59jXlG9H0MEdDvQuz2/28VUC/S7MeVuLZc1yvGCmWZoin/uO+ETYm1r4uvdrBJmdLGKkAs7YYyXuN5rFi24oQUhtICzeUR27Vm6a59LdKhGucrUFEhADDlT8Z3C/ohC+H9j5zMlOC8ma5EEeKJBZSnwxfe4YoJaacu0LRGs5f2MtJQUDuzGl2rbvTwxIiYqywIFmiSRoQZaNEekPQ7x34BvmBf3WN3+20IXb7c5TrBhCWhyJRmfsOUVaPHAN22bR8CGmdOxaqIOqEcD2HIV6H4mOSM4wK3j61KFp7WOgZGi6jS4CReBKSywe+qjc7tiOfhceVE8tCKFEIH7tj7oIs1bvXE+d8wcfZqnkcFTyLVOrMi4Qg8FG7jX5kAusVTwW3TeVlce/tw8YR9Tus=
+  provider: script
+  script: twine upload dist/* -u "__token__" -p $PYPI_TOKEN
+  skip_cleanup: true
   on:
+    python: 3.7
     tags: true
-  distributions: "sdist bdist_wheel"
