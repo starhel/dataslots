@@ -3,7 +3,7 @@ import pickle
 import platform
 import sys
 import weakref
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass, field, InitVar, astuple
 from typing import ClassVar, TypeVar, Generic
 
 import pytest
@@ -299,6 +299,10 @@ class PickleTest:
 class PickleFrozenWithoutDictTest:
     x: int
     y: int = 20
+    z: int = field(init=False)
+
+    def __post_init__(self):
+        object.__setattr__(self, 'z', self.x * self.y)
 
 
 @dataslots(add_dict=True)
@@ -327,6 +331,7 @@ def test_frozen_pickle_without_dict(assertions, pickle_protocol):
     pickled = pickle.loads(p)
 
     assert instance == pickled
+    assert astuple(instance) == astuple(pickled) == (5, 20, 100)
     assertions.assert_member('__setstate__', instance)
 
 
@@ -354,6 +359,16 @@ def test_slots_already_defined():
         x: int
         y: int
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         dataslots(A)
+    assert exc_info.match('do not define __slots__ if dataslots decorator is used')
+
+
+def test_dataslots_used_without_dataclass():
+    class A:
+        x: int
+
+    with pytest.raises(TypeError) as exc_info:
+        dataslots(A)
+    assert exc_info.match('dataslots can be used only with dataclass')
 
