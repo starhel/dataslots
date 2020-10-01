@@ -1,4 +1,4 @@
-from dataclasses import fields
+from dataclasses import fields, is_dataclass
 from warnings import warn
 
 __all__ = ['dataslots', 'with_slots']
@@ -21,9 +21,13 @@ def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
                 object.__setattr__(self, slot, value)
 
     def wrap(cls):
+        if not is_dataclass(cls):
+            raise TypeError('dataslots can be used only with dataclass')
+
         cls_dict = dict(cls.__dict__)
         if '__slots__' in cls_dict:
-            raise TypeError('Do not define __slots__ if dataslots decorator is used.')
+            raise TypeError('do not define __slots__ if dataslots decorator is used')
+
         # Create only missing slots
         inherited_slots = set().union(*(getattr(c, '__slots__', set()) for c in cls.mro()))
 
