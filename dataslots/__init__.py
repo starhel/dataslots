@@ -1,12 +1,28 @@
+from abc import ABCMeta, abstractmethod
+from collections import ChainMap
+from contextlib import contextmanager
 from dataclasses import fields, is_dataclass
+from inspect import isdatadescriptor
 from warnings import warn
 
-__all__ = ['dataslots', 'with_slots']
+try:
+    from typing import final  # type: ignore
+except ImportError:
+    from typing_extensions import final  # type: ignore
+
+__all__ = ['dataslots', 'with_slots', 'DataslotsDescriptor', 'DataDescriptor']
 
 
 def with_slots(*args, **kwargs):
     warn("Use dataslots decorator instead of with_slots", category=PendingDeprecationWarning, stacklevel=2)
     return dataslots(*args, **kwargs)
+
+
+_DATASLOTS_DESCRIPTOR = '_dataslots_'
+
+
+def _get_data_descriptor_name(var_name):
+    return _DATASLOTS_DESCRIPTOR + var_name
 
 
 def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
@@ -30,12 +46,21 @@ def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
 
         # Create only missing slots
         inherited_slots = set().union(*(getattr(c, '__slots__', set()) for c in cls.mro()))
+        mro_dict = ChainMap(*(getattr(c, '__dict__', {}) for c in cls.mro()))
 
-        field_names = set(tuple(f.name for f in fields(cls)))
+        # Create slots list + space for data descriptors
+        field_names = set()
+        for f in fields(cls):
+            if isinstance(mro_dict.get(f.name), DataDescriptor):
+                field_names.add(mro_dict[f.name].slot_name)
+            elif not isdatadescriptor(mro_dict.get(f.name)):
+                field_names.add(f.name)
+
         if add_dict:
             field_names.add('__dict__')
         if add_weakref:
             field_names.add('__weakref__')
+
         cls_dict['__slots__'] = tuple(field_names - inherited_slots)
 
         # Erase filed names from class __dict__
@@ -59,3 +84,80 @@ def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
         return new_cls
 
     return wrap if _cls is None else wrap(_cls)
+
+
+class DataDescriptor(metaclass=ABCMeta):
+    """
+    Base class for defining data descriptors when slots are auto-generated with dataslots decorator.
+    Other data descriptors are skipped when generating __slots__.
+
+    As mentioned in https://docs.python.org/3.7/howto/descriptor.html#descriptor-protocol you need to define
+    __get__ and __set__ to create data descriptor.
+    """
+
+    __slots__ = ()
+
+    @property
+    @abstractmethod
+    def slot_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def __get__(self, instance, owner):
+        pass
+
+    @abstractmethod
+    def __set__(self, instance, value):
+        pass
+
+
+class DataslotsDescriptor(DataDescriptor):
+    """
+    Simple interface for defining data descriptors:
+    * use get_value/set_value/delete_value to manage data
+    * attribute in __slots__ has auto-generated name as _dataslots_{name}
+    """
+
+    __slots__ = ('__slot_name', 'dataclass_field')
+
+    def __set_name__(self, owner, name):
+        self.dataclass_field = name
+        self.__slot_name = _get_data_descriptor_name(name)
+
+    @property
+    def slot_name(self) -> str:
+        return self.__slot_name
+
+    @abstractmethod
+    def __get__(self, instance, owner):
+        pass
+
+    @abstractmethod
+    def __set__(self, instance, value):
+        pass
+
+    def __delete__(self, instance):
+        self.delete_value(instance)
+
+    @final
+    @contextmanager
+    def _attribute_error(self):
+        try:
+            yield
+        except AttributeError as exc_info:
+            msg = str(exc_info).replace(_DATASLOTS_DESCRIPTOR, '')
+            raise AttributeError(msg) from exc_info
+
+    @final
+    def get_value(self, instance):
+        with self._attribute_error():
+            return getattr(instance, self.__slot_name)
+
+    @final
+    def set_value(self, instance, value):
+        setattr(instance, self.__slot_name, value)
+
+    @final
+    def delete_value(self, instance):
+        with self._attribute_error():
+            delattr(instance, self.__slot_name)

@@ -21,6 +21,12 @@ class Assertions:
     def assert_slots(class_or_instance, slots):
         assert sorted(class_or_instance.__slots__) == sorted(slots)
 
+    @staticmethod
+    def assert_init_raises(cls, *args, exception, msg):
+        with pytest.raises(exception) as exc_info:
+            cls(*args)
+        assert exc_info.match(msg)
+
 
 @pytest.fixture
 def assertions():
