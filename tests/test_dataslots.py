@@ -1,9 +1,8 @@
 import inspect
-import pickle
 import platform
 import sys
 import weakref
-from dataclasses import dataclass, field, InitVar, astuple
+from dataclasses import dataclass, field, InitVar
 from typing import ClassVar, TypeVar, Generic
 
 import pytest
@@ -284,74 +283,6 @@ def test_generic_typing(assertions):
     assertions.assert_not_member('__dict__', instance)
 
 
-# As mentioned in https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled, only classes
-# that are defined at the top level of module can be pickled.
-
-@dataslots()
-@dataclass(frozen=False)
-class PickleTest:
-    x: int
-    y: int = 20
-
-
-@dataslots(add_dict=False)
-@dataclass(frozen=True)
-class PickleFrozenWithoutDictTest:
-    x: int
-    y: int = 20
-    z: int = field(init=False)
-
-    def __post_init__(self):
-        object.__setattr__(self, 'z', self.x * self.y)
-
-
-@dataslots(add_dict=True)
-@dataclass(frozen=True)
-class PickleFrozenWithDictTest:
-    x: int
-    y: int = 20
-
-
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
-def test_pickle(assertions, pickle_protocol):
-    instance = PickleTest(10, 15)
-
-    p = pickle.dumps(instance, protocol=pickle_protocol)
-    pickled = pickle.loads(p)
-
-    assert instance == pickled
-    assertions.assert_not_member('__setstate__', instance)
-
-
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
-def test_frozen_pickle_without_dict(assertions, pickle_protocol):
-    instance = PickleFrozenWithoutDictTest(5)
-
-    p = pickle.dumps(instance, protocol=pickle_protocol)
-    pickled = pickle.loads(p)
-
-    assert instance == pickled
-    assert astuple(instance) == astuple(pickled) == (5, 20, 100)
-    assertions.assert_member('__setstate__', instance)
-
-
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
-def test_frozen_pickle_with_dict(assertions, pickle_protocol):
-    """
-    Using add_dict and frozen make no sense in common cases, but let check if it's working anyway.
-    https://docs.python.org/3/library/dataclasses.html#frozen-instances
-    """
-    instance = PickleFrozenWithDictTest(5)
-    object.__setattr__(instance, 'z', 20)
-
-    p = pickle.dumps(instance, protocol=pickle_protocol)
-    pickled = pickle.loads(p)
-
-    assert instance == pickled
-    assert instance.z == pickled.z == 20
-    assertions.assert_member('__setstate__', instance)
-
-
 def test_slots_already_defined():
     @dataclass
     class A:
@@ -371,4 +302,3 @@ def test_dataslots_used_without_dataclass():
     with pytest.raises(TypeError) as exc_info:
         dataslots(A)
     assert exc_info.match('dataslots can be used only with dataclass')
-
