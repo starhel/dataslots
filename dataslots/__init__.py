@@ -110,15 +110,21 @@ class DataDescriptor(metaclass=ABCMeta):
     @property
     @abstractmethod
     def slot_name(self) -> str:
-        pass
+        """
+        Variable name which must be added to `__slots__`. Only single value is supported.
+        """
 
     @abstractmethod
     def __get__(self, instance, owner):
-        pass
+        """
+        Called to get the attribute of the owner class or of an instance of that class.
+        """
 
     @abstractmethod
     def __set__(self, instance, value):
-        pass
+        """
+        Called to set the attribute on an instance of the class to a new value.
+        """
 
 
 class DataslotsDescriptor(DataDescriptor, metaclass=ABCMeta):
@@ -137,14 +143,6 @@ class DataslotsDescriptor(DataDescriptor, metaclass=ABCMeta):
     @property
     def slot_name(self) -> str:
         return self.__slot_name
-
-    @abstractmethod
-    def __get__(self, instance, owner):
-        pass
-
-    @abstractmethod
-    def __set__(self, instance, value):
-        pass
 
     def __delete__(self, instance):
         self.delete_value(instance)
