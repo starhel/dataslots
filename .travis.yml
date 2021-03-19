@@ -10,17 +10,16 @@ python:
   - '3.6'
   - '3.7'
   - '3.8'
-  - '3.9-dev'
+  - '3.9'
   - 'nightly'
   - 'pypy3'
 
 jobs:
   allow_failures:
-    - python: 3.9-dev
     - python: nightly
 
 install:
-  - pip install tox-travis codecov
+  - pip install --upgrade virtualenv tox-travis codecov
 
 script:
   - tox
