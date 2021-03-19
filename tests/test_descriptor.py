@@ -139,7 +139,7 @@ def test_delete_field():
     assert a.some_field == 10
     del a.some_field
     with pytest.raises(AttributeError) as exc_info:
-        res = a.some_field
+        _ = a.some_field
     assert exc_info.match('(?!(?<=(_dataslots_)))some_field')
     with pytest.raises(AttributeError) as exc_info:
         del a.some_field
