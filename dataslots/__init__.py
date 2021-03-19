@@ -10,11 +10,11 @@ try:
 except ImportError:
     from typing_extensions import final  # type: ignore
 
-__all__ = ['dataslots', 'with_slots', 'DataslotsDescriptor', 'DataDescriptor']
+__all__ = ['dataslots', 'DataslotsDescriptor', 'DataDescriptor']
 
 
 def with_slots(*args, **kwargs):
-    warn("Use dataslots decorator instead of with_slots", category=PendingDeprecationWarning, stacklevel=2)
+    warn("Use dataslots decorator instead of with_slots", category=DeprecationWarning, stacklevel=2)
     return dataslots(*args, **kwargs)
 
 
