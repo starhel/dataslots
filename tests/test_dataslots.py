@@ -34,6 +34,9 @@ def test_skip_init_var(assertions):
         x: int
         y: InitVar[int]
 
+        def __post_init__(self, y: int):
+            self.x += y
+
     assertions.assert_slots(A, ('x',))
 
 

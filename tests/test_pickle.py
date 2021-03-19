@@ -9,7 +9,7 @@ from dataslots import dataslots
 # that are defined at the top level of module can be pickled.
 
 
-@dataslots()
+@dataslots
 @dataclass(frozen=False)
 class PickleTest:
     x: int

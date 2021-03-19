@@ -5,6 +5,8 @@ from dataclasses import fields, is_dataclass
 from inspect import isdatadescriptor
 from warnings import warn
 
+from typing import overload
+
 try:
     from typing import final  # type: ignore
 except ImportError:
@@ -21,8 +23,16 @@ def with_slots(*args, **kwargs):
 _DATASLOTS_DESCRIPTOR = '_dataslots_'
 
 
-def _get_data_descriptor_name(var_name):
+def _get_data_descriptor_name(var_name: str) -> str:
     return _DATASLOTS_DESCRIPTOR + var_name
+
+
+@overload
+def dataslots(_cls): ...
+
+
+@overload
+def dataslots(*, add_dict: bool = ..., add_weakref: bool = ...): ...
 
 
 def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
@@ -111,7 +121,7 @@ class DataDescriptor(metaclass=ABCMeta):
         pass
 
 
-class DataslotsDescriptor(DataDescriptor):
+class DataslotsDescriptor(DataDescriptor, metaclass=ABCMeta):
     """
     Simple interface for defining data descriptors:
     * use get_value/set_value/delete_value to manage data
