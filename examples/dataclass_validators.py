@@ -5,7 +5,7 @@ from dataslots import dataslots, DataslotsDescriptor
 class Validator(DataslotsDescriptor):
     __slots__ = ('validators', )
 
-    def __init__(self, validators):
+    def __init__(self, *validators):
         self.validators = validators
 
     def __get__(self, instance, owner):
@@ -29,8 +29,8 @@ def validate_numeric(value: str):
 @dataslots
 @dataclass
 class Row:
-    param_str: str = Validator([validate_length, validate_numeric])
-    param_int: int = Validator([lambda value: value >= 0])
+    param_str: str = Validator(validate_length, validate_numeric)
+    param_int: int = Validator(lambda value: value >= 0)
 
 
 if __name__ == '__main__':
@@ -46,3 +46,5 @@ if __name__ == '__main__':
         row = Row('123456', -10)
     except ValueError as e:
         assert str(e) == "Incorrect value for 'param_int'"
+
+    print('All checks ok')
