@@ -1,4 +1,5 @@
 import pickle
+import sys
 from dataclasses import dataclass, field, astuple
 
 import pytest
@@ -34,7 +35,10 @@ class PickleFrozenWithDictTest:
     y: int = 20
 
 
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
+@pytest.mark.parametrize(
+    "pickle_protocol",
+    [3, 4, pytest.param(5, marks=pytest.mark.skipif(sys.version_info < (3, 8), reason="Protocol not available"))],
+)
 def test_pickle(assertions, pickle_protocol):
     instance = PickleTest(10, 15)
 
@@ -45,7 +49,10 @@ def test_pickle(assertions, pickle_protocol):
     assertions.assert_not_member('__setstate__', instance)
 
 
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
+@pytest.mark.parametrize(
+    "pickle_protocol",
+    [3, 4, pytest.param(5, marks=pytest.mark.skipif(sys.version_info < (3, 8), reason="Protocol not available"))],
+)
 def test_frozen_pickle_without_dict(assertions, pickle_protocol):
     instance = PickleFrozenWithoutDictTest(5)
 
@@ -57,7 +64,10 @@ def test_frozen_pickle_without_dict(assertions, pickle_protocol):
     assertions.assert_member('__setstate__', instance)
 
 
-@pytest.mark.parametrize("pickle_protocol", [3, 4])
+@pytest.mark.parametrize(
+    "pickle_protocol",
+    [3, 4, pytest.param(5, marks=pytest.mark.skipif(sys.version_info < (3, 8), reason="Protocol not available"))],
+)
 def test_frozen_pickle_with_dict(assertions, pickle_protocol):
     """
     Using add_dict and frozen make no sense in common cases, but let check if it's working anyway.
