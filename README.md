@@ -7,7 +7,7 @@
 
 ## Decorator for adding __slots__
 In python 3.7 dataclasses module was introduced for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
-Unfortunately there's no support for `__slots__` (basic support was added in 3.10). If you want to create more memory 
+Unfortunately, there's no support for `__slots__` (basic support was added in 3.10). If you want to create more memory 
 efficient instances, you need to do it by yourself or use `@dataslots` decorator.
 
 ## Usage
@@ -85,6 +85,11 @@ additional features to simplify descriptor definition).
 Check example directory for basic usage. 
 
 _Added in 1.1.0_
+
+### Typing support (PEP 561)
+The package is PEP 561 compliant, so you can easily use it with mypy. 
+
+_Added in 1.2.0_
 
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
