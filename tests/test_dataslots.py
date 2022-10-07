@@ -7,7 +7,7 @@ from typing import ClassVar, TypeVar, Generic
 
 import pytest
 
-from dataslots import dataslots, with_slots
+from dataslots import dataslots
 
 
 def test_basic_slots(assertions):
@@ -248,14 +248,6 @@ def test_slots_inheritance_no_defaults(assertions):
     assertions.assert_slots(A, ('x',))
     assertions.assert_slots(B, ('y',))
     assertions.assert_slots(C, ())
-
-
-def test_with_slots_deprecated():
-    @dataclass
-    class A:
-        x: int
-
-    pytest.deprecated_call(with_slots, A)
 
 
 def test_custom_metaclass():
