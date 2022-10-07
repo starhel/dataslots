@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
 from dataclasses import fields, is_dataclass
+from dataclasses import dataclass as cpy_dataclass
 from inspect import isdatadescriptor
-from warnings import warn
 
 from typing import overload
 
@@ -12,13 +12,7 @@ try:
 except ImportError:
     from typing_extensions import final  # type: ignore
 
-__all__ = ['dataslots', 'DataslotsDescriptor', 'DataDescriptor']
-
-
-def with_slots(*args, **kwargs):
-    warn("Use dataslots decorator instead of with_slots", category=DeprecationWarning, stacklevel=2)
-    return dataslots(*args, **kwargs)
-
+__all__ = ['dataslots', 'dataclass', 'DataslotsDescriptor', 'DataDescriptor']
 
 _DATASLOTS_DESCRIPTOR = '_dataslots_'
 
@@ -35,7 +29,7 @@ def dataslots(_cls): ...
 def dataslots(*, add_dict: bool = ..., add_weakref: bool = ...): ...
 
 
-def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
+def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
     """
     Decorator to add __slots__ to class created by dataclass. Returns new class object as it's not possible
     to add __slots__ after class creation.
@@ -94,6 +88,25 @@ def dataslots(_cls=None, *, add_dict: bool = False, add_weakref: bool = False):
         return new_cls
 
     return wrap if _cls is None else wrap(_cls)
+
+
+@overload
+def dataclass(_cls): ...
+
+
+@overload
+def dataclass(*, slots: bool = ..., weakref_slot: bool = ..., **kwargs): ...
+
+
+def dataclass(cls=None, *, slots=False, weakref_slot=False, **kwargs):
+    if not slots:
+        raise TypeError('slots is False, use dataclasses.dataclass instead')
+
+    def wrap(cls):
+        cls = cpy_dataclass(**kwargs)(cls)
+        return dataslots(add_weakref=weakref_slot)(cls)
+
+    return wrap if cls is None else wrap(cls)
 
 
 class DataDescriptor(metaclass=ABCMeta):

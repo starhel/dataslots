@@ -91,6 +91,14 @@ The package is PEP 561 compliant, so you can easily use it with mypy.
 
 _Added in 1.2.0_
 
+### Backport
+If you prefer using the newest `dataclasses.dataclass` interface you can use `dataslots.dataclass` wrapper 
+to provide a consistent interface regardless of the python version.
+
+Notice: Wrapper always uses `dataslots` to make all additional features available.
+
+_Added in 1.2.0_
+
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
 * https://github.com/ericvsmith/dataclasses/issues/28
