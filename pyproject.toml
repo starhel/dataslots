@@ -8,3 +8,15 @@ requires = [
     "setuptools_scm[toml]>=3.4"
 ]
 build-backend = "setuptools.build_meta"
+
+
+[tool.pyright]
+include = ["src", "tests"]
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+reportConstantRedefinition = "error"
+reportDuplicateImport = "error"
+reportImportCycles = "error"
+reportIncompatibleMethodOverride = "error"
+reportUntypedClassDecorator = "error"

@@ -80,5 +80,5 @@ def test_frozen_pickle_with_dict(assertions, pickle_protocol):
     pickled = pickle.loads(p)
 
     assert instance == pickled
-    assert instance.z == pickled.z == 20
+    assert instance.z == pickled.z == 20  # type: ignore
     assertions.assert_member('__setstate__', instance)

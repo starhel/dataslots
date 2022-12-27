@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
@@ -5,16 +7,21 @@ from dataclasses import fields, is_dataclass
 from dataclasses import dataclass as cpy_dataclass
 from inspect import isdatadescriptor
 
-from typing import overload
+from typing import overload, Optional, Dict, Tuple, Any, TypeVar, Callable, Type
 
 try:
-    from typing import final  # type: ignore
+    from typing import final, dataclass_transform  # type: ignore
 except ImportError:
-    from typing_extensions import final  # type: ignore
+    from typing_extensions import final, dataclass_transform  # type: ignore
 
 __all__ = ['dataslots', 'dataclass', 'DataslotsDescriptor', 'DataDescriptor']
 
 _DATASLOTS_DESCRIPTOR = '_dataslots_'
+
+
+# State is always tuple of two items if __slots__ are defined
+StateType = Tuple[Optional[Dict[str, Any]], Dict[str, Any]]
+DC = TypeVar('DC')
 
 
 def _get_data_descriptor_name(var_name: str) -> str:
@@ -22,11 +29,11 @@ def _get_data_descriptor_name(var_name: str) -> str:
 
 
 @overload
-def dataslots(_cls): ...
+def dataslots(_cls: Type[DC]) -> Type[DC]: ...
 
 
 @overload
-def dataslots(*, add_dict: bool = ..., add_weakref: bool = ...): ...
+def dataslots(*, add_dict: bool = ..., add_weakref: bool = ...) -> Callable[[Type[DC]], Type[DC]]: ...
 
 
 def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
@@ -35,7 +42,7 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
     to add __slots__ after class creation.
     """
 
-    def _slots_setstate(self, state):
+    def _slots_setstate(self, state: StateType):
         for param_dict in filter(None, state):
             for slot, value in param_dict.items():
                 object.__setattr__(self, slot, value)
@@ -44,7 +51,7 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
         if not is_dataclass(cls):
             raise TypeError('dataslots can be used only with dataclass')
 
-        cls_dict = dict(cls.__dict__)
+        cls_dict: Dict[str, Any] = dict(cls.__dict__)
         if '__slots__' in cls_dict:
             raise TypeError('do not define __slots__ if dataslots decorator is used')
 
@@ -54,11 +61,11 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
 
         # Create slots list + space for data descriptors
         field_names = set()
-        for f in fields(cls):
-            if isinstance(mro_dict.get(f.name), DataDescriptor):
-                field_names.add(mro_dict[f.name].slot_name)
-            elif not isdatadescriptor(mro_dict.get(f.name)):
-                field_names.add(f.name)
+        for field in fields(cls):
+            if isinstance(mro_dict.get(field.name), DataDescriptor):
+                field_names.add(mro_dict[field.name].slot_name)
+            elif not isdatadescriptor(mro_dict.get(field.name)):
+                field_names.add(field.name)
 
         if add_dict:
             field_names.add('__dict__')
@@ -68,8 +75,8 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
         cls_dict['__slots__'] = tuple(field_names - inherited_slots)
 
         # Erase filed names from class __dict__
-        for f in field_names:
-            cls_dict.pop(f, None)
+        for field_name in field_names:
+            cls_dict.pop(field_name, None)
 
         # Erase __dict__ and __weakref__
         cls_dict.pop('__dict__', None)
@@ -91,14 +98,15 @@ def dataslots(_cls=None, *, add_dict=False, add_weakref=False):
 
 
 @overload
-def dataclass(_cls): ...
+def dataclass(_cls: Type[DC]) -> Type[DC]: ...
 
 
 @overload
-def dataclass(*, slots: bool = ..., weakref_slot: bool = ..., **kwargs): ...
+def dataclass(*, slots: bool = ..., weakref_slot: bool = ..., **kwargs) -> Callable[[Type[DC]], Type[DC]]: ...
 
 
-def dataclass(cls=None, *, slots=False, weakref_slot=False, **kwargs):
+@dataclass_transform()
+def dataclass(_cls=None, *, slots=False, weakref_slot=False, **kwargs):
     if not slots:
         raise TypeError('slots is False, use dataclasses.dataclass instead')
 
@@ -106,7 +114,7 @@ def dataclass(cls=None, *, slots=False, weakref_slot=False, **kwargs):
         cls = cpy_dataclass(**kwargs)(cls)
         return dataslots(add_weakref=weakref_slot)(cls)
 
-    return wrap if cls is None else wrap(cls)
+    return wrap if _cls is None else wrap(_cls)
 
 
 class DataDescriptor(metaclass=ABCMeta):

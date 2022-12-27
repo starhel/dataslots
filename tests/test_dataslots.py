@@ -24,7 +24,7 @@ def test_basic_slots(assertions):
     assertions.assert_not_member('__weakref__', instance)
 
     with pytest.raises(AttributeError):
-        instance.new_prop = 15
+        instance.new_prop = 15  # type: ignore
 
 
 def test_skip_init_var(assertions):
@@ -157,7 +157,7 @@ def test_read_only_variable_class_var():
     a = A(10)
     assert a.y == 5
     with pytest.raises(AttributeError):
-        a.y = 20
+        a.y = 20  # type: ignore
 
     b = A(5)
     a.z.add(10)
@@ -181,9 +181,10 @@ def test_qualname():
     class A:
         x: int
 
-    qualname = f'{inspect.currentframe().f_code.co_name}.<locals>.A'
+    frame = inspect.currentframe()
 
-    assert A.__qualname__ == qualname
+    assert frame is not None, "Running implementation without Python stack frame."
+    assert A.__qualname__ == f'{frame.f_code.co_name}.<locals>.A'
 
 
 def test_slots_inheritance(assertions):
@@ -270,9 +271,9 @@ def test_generic_typing(assertions):
     @dataclass
     class A(Generic[T]):
         x: T
-        y: T = 10
+        y: T
 
-    instance = A[int](x=5)
+    instance = A[int](x=5, y=10)
     assertions.assert_slots(A, ('x', 'y'))
     assert 10 == instance.y
     assertions.assert_not_member('__dict__', instance)
@@ -297,3 +298,15 @@ def test_dataslots_used_without_dataclass():
     with pytest.raises(TypeError) as exc_info:
         dataslots(A)
     assert exc_info.match('dataslots can be used only with dataclass')
+
+
+def test_add_custom_function():
+    @dataslots
+    @dataclass(frozen=True, eq=True)
+    class A:
+        x: int
+
+        def __add__(self, other: 'A') -> 'A':
+            return A(self.x + other.x)
+
+    assert A(x=5) + A(x=7) == A(x=12)
