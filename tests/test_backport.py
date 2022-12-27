@@ -18,7 +18,7 @@ def test_basic_backport(assertions):
     assertions.assert_not_member('__weakref__', instance)
 
     with pytest.raises(AttributeError):
-        instance.new_prop = 15
+        instance.new_prop = 15  # type: ignore
 
     assert A(10) > A(5)
 

@@ -22,9 +22,9 @@ class Assertions:
         assert sorted(class_or_instance.__slots__) == sorted(slots)
 
     @staticmethod
-    def assert_init_raises(cls, *args, exception, msg):
+    def assert_init_raises(datacls, *args, exception, msg):
         with pytest.raises(exception) as exc_info:
-            cls(*args)
+            datacls(*args)
         assert exc_info.match(msg)
 
 

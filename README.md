@@ -1,6 +1,6 @@
 # dataslots
 ![Build status](https://github.com/starhel/dataslots/actions/workflows/tests.yml/badge.svg)
-[![codecov](https://codecov.io/gh/starhel/dataslots/branch/master/graph/badge.svg)](https://codecov.io/gh/starhel/dataslots)
+[![coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/starhel/dataslots/actions)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dataslots.svg)](https://pypi.org/project/dataslots/)
 [![PyPI - Status](https://img.shields.io/pypi/status/dataslots.svg)](https://pypi.org/project/dataslots/)
 ![license](https://img.shields.io/github/license/starhel/dataslots.svg)
@@ -87,7 +87,10 @@ Check example directory for basic usage.
 _Added in 1.1.0_
 
 ### Typing support (PEP 561)
-The package is PEP 561 compliant, so you can easily use it with mypy. 
+The package is PEP 561 compliant, so you can easily use it with mypy<sup>1</sup> and pyright.
+
+<sup>1</sup> Due to some issues in mypy not all features are supported correctly (like [dataclass alike 
+interface](https://github.com/python/mypy/issues/14293) or [descriptors](https://github.com/python/mypy/issues/13856)). 
 
 _Added in 1.2.0_
 
@@ -95,7 +98,7 @@ _Added in 1.2.0_
 If you prefer using the newest `dataclasses.dataclass` interface you can use `dataslots.dataclass` wrapper 
 to provide a consistent interface regardless of the python version.
 
-Notice: Wrapper always uses `dataslots` to make all additional features available.
+Notice: Wrapper always uses `dataslots` to make all additional features available and `slots=True` is obligatory. 
 
 _Added in 1.2.0_
 
