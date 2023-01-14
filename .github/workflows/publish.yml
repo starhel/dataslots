@@ -5,13 +5,17 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
 jobs:
   build-n-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - name: "Checkout repository"
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
       - name: Set up Python 3.10
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # v4.4.0
         with:
           python-version: '3.10'
       - name: Install pypa/build
