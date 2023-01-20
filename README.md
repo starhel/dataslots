@@ -1,9 +1,11 @@
 # dataslots
-![Build status](https://github.com/starhel/dataslots/actions/workflows/tests.yml/badge.svg)
-[![coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/starhel/dataslots/actions)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dataslots.svg)](https://pypi.org/project/dataslots/)
 [![PyPI - Status](https://img.shields.io/pypi/status/dataslots.svg)](https://pypi.org/project/dataslots/)
 ![license](https://img.shields.io/github/license/starhel/dataslots.svg)
+[![build status](https://github.com/starhel/dataslots/actions/workflows/tests.yml/badge.svg)](https://github.com/starhel/dataslots/actions)
+[![coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/starhel/dataslots/actions)
+
+[![SLSA](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
 
 ## Decorator for adding __slots__
 In python 3.7 dataclasses module was introduced for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
@@ -101,6 +103,23 @@ to provide a consistent interface regardless of the python version.
 Notice: Wrapper always uses `dataslots` to make all additional features available and `slots=True` is obligatory. 
 
 _Added in 1.2.0_
+
+## SLSA support
+All packages from version 1.2.0 can be verified using [SLSA provenance](https://slsa.dev/provenance/v0.2) 
+(dataslots package is compliant with [SLSA Level 3](https://slsa.dev/spec/v0.1/levels)).
+
+If you want to verify dataslots before installing, you need to download 
+[SLSA verifier](https://github.com/slsa-framework/slsa-verifier) and run:
+```bash
+slsa-verifier verify-artifact \
+--provenance-path dataslots.intoto.jsonl \
+--source-uri github.com/starhel/dataslots \
+--source-tag v${VER} \
+${PATH_TO_PACKAGE}
+```
+
+`VER` is version of package download from PYPI or GH release. Provenance is only available in GH release as PYPI
+does not accept jsonl files. 
 
 ## More about \_\_slots__
 * https://docs.python.org/3/reference/datamodel.html#slots
