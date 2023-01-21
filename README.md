@@ -6,6 +6,7 @@
 [![coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/starhel/dataslots/actions)
 
 [![SLSA](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/starhel/dataslots/badge)](https://api.securityscorecards.dev/projects/github.com/starhel/dataslots)
 
 ## Decorator for adding __slots__
 In python 3.7 dataclasses module was introduced for faster class creation ([PEP 557](https://www.python.org/dev/peps/pep-0557/)).
