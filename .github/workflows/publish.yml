@@ -69,7 +69,6 @@ jobs:
         run: |
           gh release upload ${{ github.ref_name }} dist/* --repo ${{ github.repository }}
       - name: "Publish distribution to PyPI"
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@c7f29f7adef1a245bd91520e94867e5c6eedddcc # release/v1
         with:
-          user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
