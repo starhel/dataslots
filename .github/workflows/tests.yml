@@ -11,9 +11,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11', 'pypy3.7', 'pypy3.8', 'pypy3.9' ]
-
+        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11', '3.12-dev', 'pypy3.7', 'pypy3.8', 'pypy3.9' ]
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
