@@ -90,10 +90,9 @@ Check example directory for basic usage.
 _Added in 1.1.0_
 
 ### Typing support (PEP 561)
-The package is PEP 561 compliant, so you can easily use it with mypy<sup>1</sup> and pyright.
+The package is PEP 561 compliant, so you can easily use it with `mypy>=1.1.1`<sup>1</sup> and `pyright`.
 
-<sup>1</sup> Due to some issues in mypy not all features are supported correctly (like [dataclass alike 
-interface](https://github.com/python/mypy/issues/14293) or [descriptors](https://github.com/python/mypy/issues/13856)). 
+<sup>1</sup> Due to some issues in mypy not all features are supported correctly (known bugs: [descriptors](https://github.com/python/mypy/issues/13856)). 
 
 _Added in 1.2.0_
 
