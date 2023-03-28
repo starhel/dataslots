@@ -41,3 +41,14 @@ def test_raise(assertions):
     with pytest.raises(TypeError) as exc_info:
         dataclass(slots=False)(A)
     assert exc_info.match('slots is False, use dataclasses.dataclass instead')
+
+
+def test_add_custom_function():
+    @dataclass(frozen=True, eq=True, slots=True)
+    class A:
+        x: int
+
+        def __add__(self, other: 'A') -> 'A':
+            return A(self.x + other.x)
+
+    assert A(x=5) + A(x=7) == A(x=12)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from abc import ABCMeta, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
@@ -9,10 +10,10 @@ from inspect import isdatadescriptor
 
 from typing import overload, Optional, Dict, Tuple, Any, TypeVar, Callable, Type
 
-try:
-    from typing import final, dataclass_transform  # type: ignore
-except ImportError:
-    from typing_extensions import final, dataclass_transform  # type: ignore
+if sys.version_info >= (3, 11):
+    from typing import final, dataclass_transform
+else:
+    from typing_extensions import final, dataclass_transform
 
 __all__ = ['dataslots', 'dataclass', 'DataslotsDescriptor', 'DataDescriptor']
 
